@@ -110,3 +110,21 @@ ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Default command to run your app
 CMD ["node", "server.js"]
+
+
+explanation
+
+Why this is “perfect & smooth”:
+ENV PORT=80 + EXPOSE 80 → makes your container predictable for orchestration (Kubernetes, Docker Compose, Azure ACR pipelines).
+
+--no-install-recommends → keeps image lean and avoids unnecessary packages.
+
+Global nodemon → supports dev/test hot‑reload workflows.
+
+npm ci → reproducible installs, faster and safer than npm install.
+
+Cache cleanup → smaller final image, fewer vulnerabilities.
+
+Build tools (python3, make, g++) → ensures native modules compile without failing.
+
+tini → proper signal handling and process reaping in production.
