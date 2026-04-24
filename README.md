@@ -64,3 +64,49 @@ This isn't an example of a properly architected perfectly designed distributed a
 example of the various types of pieces and languages you might see (queues, persistent data, etc), and how to
 deal with them in Docker at a basic level.
 # voting-application
+
+
+# Dockerfile of nodejs result micoservice
+
+# Use Node.js 18 Slim base image
+FROM node:18-slim
+
+# Install system dependencies with best practices
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    tini \
+    ca-certificates \
+    git \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set environment variables
+ENV PORT=80
+
+# Set working directory
+WORKDIR /usr/local/app
+
+# Copy package manifests first for dependency caching
+COPY package*.json ./
+
+# Install nodemon globally for dev workflows
+RUN npm install -g nodemon
+
+# Install dependencies using npm ci (clean install)
+RUN npm ci && \
+    npm cache clean --force && \
+    mv node_modules /node_modules
+
+# Copy application source code
+COPY . .
+
+# Expose application port
+EXPOSE 80
+
+# Use tini as init process to handle signals properly
+ENTRYPOINT ["/usr/bin/tini", "--"]
+
+# Default command to run your app
+CMD ["node", "server.js"]
